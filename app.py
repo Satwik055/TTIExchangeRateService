@@ -1,9 +1,17 @@
 import time
+from dataclasses import dataclass
+from typing import Dict
 import requests
 from supabase import create_client, Client
 import schedule
 
-from ExchangeRate import ExchangeRate
+
+@dataclass
+class ExchangeRate:
+    result: str
+    base_code: str
+    conversion_rates: Dict[str, float]
+
 
 SUPABASE_ACCESS_TOKEN = "sbp_6a882e10989b5ec87bc36f286c7c69044eca8d29"
 SUPABASE_URL = 'https://fqsnwalptczelvhiwohd.supabase.co'
