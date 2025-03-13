@@ -2,8 +2,9 @@ import time
 from dataclasses import dataclass
 from typing import Dict
 import requests
-from supabase import create_client, Client
+from supabase import *
 import schedule
+import logging
 
 
 @dataclass
@@ -13,10 +14,19 @@ class ExchangeRate:
     conversion_rates: Dict[str, float]
 
 
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+handler.setFormatter(formatter)
+
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
+
 SUPABASE_ACCESS_TOKEN = "sbp_6a882e10989b5ec87bc36f286c7c69044eca8d29"
 SUPABASE_URL = 'https://fqsnwalptczelvhiwohd.supabase.co'
 SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxc253YWxwdGN6ZWx2aGl3b2hkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg2NzI4MTYsImV4cCI6MjA1NDI0ODgxNn0.TzD0KcPnEJz0DvLYxUmK68PeDuNy47sU0jRlyhAls-I'
-mysupabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 def get_exchange_rates() -> ExchangeRate:
@@ -60,18 +70,18 @@ def update_tti_rates():
         try:
             response = supabase.table('exchange_rate').update({'tti': new_price}).eq('currency_name', row_id).execute()
             if response.data:
-                print(f"Successfully updated {row_id} with new price {new_price}")
+                logger.info(f"Successfully updated {row_id} with new price {new_price}")
             else:
-                print(f"No rows were updated for row {row_id}. Check if the row exists.")
+                logger.error(f"No rows were updated for row {row_id}. Check if the row exists.")
 
         except Exception as e:
-            print(f"Error updating row {row_id}: {str(e)}")
+            logger.error(f"Error updating row {row_id}: {str(e)}")
 
 
-schedule.every(5).seconds.do(update_tti_rates)
+schedule.every(30).minutes.do(update_tti_rates)
 
 if __name__ == "__main__":
     while True:
-        print('Heartbeat')
+        logger.info("Heartbeat")
         schedule.run_pending()
         time.sleep(1)
