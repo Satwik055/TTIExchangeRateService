@@ -4,6 +4,7 @@ import io.ktor.client.*
 import kotlinx.coroutines.runBlocking
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import service.ExchangeRateService
 import utlis.Constants
 import java.time.Duration
 import java.util.logging.Logger
@@ -14,7 +15,7 @@ fun main() = runBlocking {
     val cycleTimeSeconds:Long = 10
 
     while (true) {
-        updateTtiRates(
+        ExchangeRateService.updateTtiRates(
             supabaseClient = supabaseClient,
             ktorClient = ktorClient
         )
